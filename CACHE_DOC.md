@@ -56,3 +56,14 @@ The default behaviour of a dynamic path is to always make a new request. You can
 **WHY?** because there are **TWO** kinds of caching: Data Cache and something called Client Cache. This Client cache is used whenever a *soft* navigation happens inside our application.
 
 The `<Link>` component performs a soft navigation, while `<a>` is a hard navigation, which triggers a new request. The soft navigation also will trigger a new request if the default interval of 30 seconds, in which the client cache is considered active, hasn't passed. Try to do a soft navigation after 30 seconds and you will see that the response is now brand new.
+
+***Truly Dynamic Path:*** to make the paths actually dynamic we need to change this config in `next.config.mjs`:
+```
+experimental: {
+    staleTimes: {
+      dynamic: 0,
+    },
+  },
+```
+
+This sets the interval of marking the client cache as stale to 0, so effectively no client cache will be used. The default is 30.
