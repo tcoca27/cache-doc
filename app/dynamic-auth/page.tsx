@@ -7,20 +7,21 @@ const Dynamic1Page = async () => {
   const time = await fetch("http://localhost:3000/api/dynamic", {
     next: { revalidate: 10 },
     headers: {
+      Authorization: "Bearer " + "token",
       "Content-Type": "application/json",
     },
   });
   const data = await time.json();
-  console.log("Dynamic-1 Page Data:", data);
+  console.log("Dynamic-Auth Page Data:", data);
 
   return (
     <div className="flex flex-col text-center gap-10 text-lg">
-      <h1>Dynamic 1</h1>
+      <h1>Dynamic Auth</h1>
       <p>Response: {data.message}</p>
+      <Link href="/dynamic-1">Go To Dynamic 1 - Soft</Link>
       <Link href="/dynamic-2">Go To Dynamic 2 - Soft</Link>
-      <Link href="/dynamic-auth">Go To Dynamic Auth - Soft</Link>
+      <a href="/dynamic-1">Go To Dynamic 1 - Hard</a>
       <a href="/dynamic-2">Go To Dynamic 2 - Hard</a>
-      <a href="/dynamic-auth">Go To Dynamic Auth - Hard</a>
     </div>
   );
 };

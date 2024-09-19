@@ -5,6 +5,7 @@ import React from "react";
 const Dynamic1Page = async () => {
   cookies();
   const time = await fetch("http://localhost:3000/api/dynamic", {
+    next: { revalidate: 10 },
     headers: {
       "Content-Type": "application/json",
     },
@@ -17,7 +18,9 @@ const Dynamic1Page = async () => {
       <h1>Dynamic 2</h1>
       <p>Response: {data.message}</p>
       <Link href="/dynamic-1">Go To Dynamic 1 - Soft</Link>
+      <Link href="/dynamic-auth">Go To Dynamic Auth - Soft</Link>
       <a href="/dynamic-1">Go To Dynamic 1 - Hard</a>
+      <a href="/dynamic-auth">Go To Dynamic Auth - Hard</a>
     </div>
   );
 };
