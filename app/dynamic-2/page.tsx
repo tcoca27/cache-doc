@@ -16,7 +16,8 @@ const Dynamic1Page = async () => {
     <div className="flex flex-col text-center gap-10 text-lg">
       <h1>Dynamic 2</h1>
       <p>Response: {data.message}</p>
-      <Link href="/dynamic-1">Go To Dynamic 1</Link>
+      <Link href="/dynamic-1">Go To Dynamic 1 - Soft</Link>
+      <a href="/dynamic-1">Go To Dynamic 1 - Hard</a>
     </div>
   );
 };
