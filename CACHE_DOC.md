@@ -67,3 +67,44 @@ experimental: {
 ```
 
 This sets the interval of marking the client cache as stale to 0, so effectively no client cache will be used. The default is 30.
+
+### Dynamic Paths with Cache Usage
+
+We can still opt in into the Data Cache option if we need to. There are two versions of revalidation for this:
+* Time Based
+This is added by adding the following revalidate option to your fetches:
+```
+await fetch("http://localhost:3000/api/dynamic", {
+    next: { revalidate: 10 },
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+```
+
+The behaviour this has is the following:
+
+1. first request is made at time X, a response is received and saved to data cache
+2. second request comes in at time X+n, n < 10; the response is straight taken from data cache, no updating of cache is done
+3. third request comes in after X+m, m > 10; the response is **STILL** taken from cache, but the data is now STALE. Since it's STALE a request will be done and the Data Cahce will be updated with the new value, BUT the client will still receive the old cached value
+4. forth request comes in, and now receives the new response stored in Data Chace by the third request.
+
+[Image describing this in the NextJS docs](https://nextjs.org/_next/image?url=%2Fdocs%2Fdark%2Ftime-based-revalidation.png&w=3840&q=75)
+
+***IMO*** this is not good behaviour, and we should have a way to know that a cached response is stale and not return it to the client.
+
+***Demonstration***
+
+When first going to `dynamic-1` page you will be served the last cached response if there exists (even if this is 300 years old!!!). Only after a refresh, you will see the new data in the client.
+If you navigate (hard or soft) between `dynamic-1` and `dynamic-2` in the course of 10 seconds, the response will be same. The paths make the same fetch call, so they share the cache.
+
+Then at a new (hard or soft) navigation to `dynamic-1/2` after 10 seconds, you will STILL see the old response, BUT now a new request is done and the Data Cache is updayed. With a refresh or a new navigation, we will now see the updated response.
+
+But in these 10 seconds if you navigate to `dynamic-auth`, even though the fetch seems to be the same, you will see a new response. 
+The `dynamic-auth` path has a separate cache. *WHY?* because it has a different header, the Authorization one. For every differnce of fetch requests (even different values of headers, cookies, etc), the cache will be separate.
+
+> **Observation**
+Client Cache still works if we don't override its defaults
+
+> ***Observation 2***
+You might see in some old docs or in stackoverflow answers that you can set the revalidation period of a path by using `export const revalidate = 10;` from the page.tsx file. This is not true, this doesn't do anything. At least not in the dynamic paradigm.
