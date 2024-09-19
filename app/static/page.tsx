@@ -1,7 +1,7 @@
 import React from "react";
 
 const StaticPage = async () => {
-  const time = await fetch("http://localhost:3000/api/static-route", {
+  const time = await fetch("http://localhost:3000/api/static", {
     headers: {
       "Content-Type": "application/json",
     },
