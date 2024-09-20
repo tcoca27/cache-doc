@@ -4,8 +4,7 @@ import Link from "next/link";
 
 async function getTodos() {
   const res = await fetch("http://localhost:3000/api/todos", {
-    cache: "no-store",
-    next: { tags: ["todos"] },
+    next: { revalidate: 10, tags: ["todos"] },
   });
   return res.json();
 }
