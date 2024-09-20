@@ -4,7 +4,7 @@ import Link from "next/link";
 
 async function getTodos() {
   const res = await fetch("http://localhost:3000/api/todos", {
-    cache: "no-store",
+    next: { revalidate: 10 },
   });
   return res.json();
 }
@@ -19,7 +19,7 @@ async function addTodo(formData: FormData) {
     },
     body: JSON.stringify({ todo }),
   });
-  revalidatePath("/todos-path");
+  revalidatePath("/path-revalidation");
 }
 
 export default async function TodosPathPage() {
