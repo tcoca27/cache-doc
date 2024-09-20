@@ -37,6 +37,7 @@ If your page uses dynamic route segments (e.g., `[id]` in the file name), it wil
 If your page component uses any of these functions from `next/headers`, it will automatically opt out of static rendering.
 4.**Use dynamic functions**:
 Certain functions like `redirect()` or `notFound()` will cause the page to be dynamically rendered.
+5.`let data = await fetch('https://api.vercel.app/blog', { cache: 'no-store' })`
 
 ***Move to static-page branch*** 
 
@@ -108,3 +109,50 @@ Client Cache still works if we don't override its defaults
 
 > ***Observation 2***
 You might see in some old docs or in stackoverflow answers that you can set the revalidation period of a path by using `export const revalidate = 10;` from the page.tsx file. This is not true, this doesn't do anything. At least not in the dynamic paradigm.
+
+### On Demand Revalidation
+
+There is another revalidation pattern, called **On Demand Revalidation**, trough which we can programatically revalidate caches for requests. This is typically used when we make mutations and we know for sure that the UI should be updated to reflect these mutations.
+
+There are 2 types:
+- path revalidation: `revalidatePath("/path")` - revalidates the entire /path
+- tag revalidation: `revalidateTag("some-tag")` - revalidates the cache of the request marked with this tag
+
+***For Demonstration*** move to branch on-demand-revalidation
+When adding todos, you will see that they get instantly added to the list. 
+You can disable (comment) the lines which trigger revalidations and see what happens. The list will not be updated instantly anymore, you will have to navigate or refresh to see the changes.
+
+
+### On Demand Revalidation with Cahce
+
+If we introduce caching with on demand revalidation, things get trickier, and a little unintuitive.
+
+***Demo*** go to on-demand-with-cache branch.
+
+Here we've added time based revalidation to the fetch requests.
+
+It seems that the path revalidation is not taken into account anymore. The behaviour is the same as for the time based revalidation: i.e. cache response is updated only after 10s
+
+The tag revalidation mechanism still works as expected, the new todos being shown instantly.
+
+
+### Fixing the Time Based Revalidation
+
+Ideally what we want is that the user never sees STALE data and their requests are cached for a small amount of time ( < 5 mins, this makes sense for the gateway project). With default nextjs time based caching mechanism, there is no way to actually ensure fresh data.
+
+Solution: use a default cache-handler, which overrides the cache handler from next. 
+
+Since we're not deploying on Vercel, our cache is saved to disk. If we have more pods, the cache isn't even shared between them :(.
+
+I've added the following [library](https://caching-tools.github.io/next-shared-cache), which provides an implementation of the local cache that is more deterministic.
+
+For this we introduced the `cache-handler.mjs` file and some changes to the `next.config.mjs` file. 
+
+***Demo*** go to branch dynamic-cache-fixed and observe the behaviour:
+- navigating to `/dynamic-1` will render a new response
+- all refreshes or navigations within 10 seconds to `/dynamic-2` will render the same result
+- a new navigation or refresh after 10 seconds will render a new result
+- as previously, the `/dynamic-auth` has a separate cache since it has different headers than first 2 paths.
+
+>***Observation***
+In the next.config we also configured the stale time, without this, the dynamic paths will still show the same response on *SOFT* navigations.
