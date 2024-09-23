@@ -13,7 +13,7 @@ The answer to this question is dependent on the type of the path/route we are ac
 > **Observation**
 >> From this point on we will be referring to the production built version of the app. In development mode, even the static paths do not use caching, but make new requests every time
 
-***Move to the static branch***
+***Demo*** Move to the `static` branch
 
 A Static Route/Path caches the response of any API call it makes at application *BUILD* time - i.e. when `next build` is run.
 
@@ -39,7 +39,7 @@ If your page component uses any of these functions from `next/headers`, it will 
 Certain functions like `redirect()` or `notFound()` will cause the page to be dynamically rendered.
 5.`let data = await fetch('https://api.vercel.app/blog', { cache: 'no-store' })`
 
-***Move to static-page branch*** 
+***Demo*** Move to `static-page` branch
 
 Here you will see here that the behaviour of the page remains the same, it will still show the time response from build time.
 
@@ -50,7 +50,9 @@ When going to /api/dynamic in code now you will see that we access the headers t
 This is our most encoutered use cases in Carry1st Gateway project. 
 We use this paradigm when queries are related to users - i.e. user private data, or requests use authorization headers etc. 
 
-The default behaviour of a dynamic path is to always make a new request. You can check this behaviour on the `dynamic-only` branch. Whenever we go in the browser to `/dynamic-1` or `/dynamic-2` we will see a new response rendered if we refresh.
+***DEMO*** Move to `dynamic` branch
+
+The default behaviour of a dynamic path is to always make a new request. Whenever we go in the browser to `/dynamic-1` or `/dynamic-2` we will see a new response rendered if we refresh.
 
 **SURPRISE:** What happens when we navigate with Link? We get a ***cached*** response!! 
 
@@ -66,6 +68,8 @@ experimental: {
     },
   },
 ```
+
+***DEMO*** Move to `truly-dynamic` branch.
 
 This sets the interval of marking the client cache as stale to 0, so effectively no client cache will be used. The default is 30.
 
@@ -94,7 +98,7 @@ The behaviour this has is the following:
 
 ***IMO*** this is not good behaviour, and we should have a way to know that a cached response is stale and not return it to the client.
 
-***Demonstration***
+***Demo*** Move to `dynamic-time-revalidation` branch.
 
 When first going to `dynamic-1` page you will be served the last cached response if there exists (even if this is 300 years old!!!). Only after a refresh, you will see the new data in the client.
 If you navigate (hard or soft) between `dynamic-1` and `dynamic-2` in the course of 10 seconds, the response will be same. The paths make the same fetch call, so they share the cache.
@@ -118,7 +122,7 @@ There are 2 types:
 - path revalidation: `revalidatePath("/path")` - revalidates the entire /path
 - tag revalidation: `revalidateTag("some-tag")` - revalidates the cache of the request marked with this tag
 
-***For Demonstration*** move to branch on-demand-revalidation
+***Demo*** move to branch `on-demand-revalidation`.
 When adding todos, you will see that they get instantly added to the list. 
 You can disable (comment) the lines which trigger revalidations and see what happens. The list will not be updated instantly anymore, you will have to navigate or refresh to see the changes.
 
@@ -127,11 +131,9 @@ You can disable (comment) the lines which trigger revalidations and see what hap
 
 If we introduce caching with on demand revalidation, things get trickier, and a little unintuitive.
 
-***Demo*** go to on-demand-with-cache branch.
+***Demo*** go to `on-demand-with-cache branch`.
 
-Here we've added time based revalidation to the fetch requests.
-
-It seems that the path revalidation is not taken into account anymore. The behaviour is the same as for the time based revalidation: i.e. cache response is updated only after 10s
+Here we've added time based revalidation to the fetch requests. (Cache)
 
 The tag revalidation mechanism still works as expected, the new todos being shown instantly.
 
@@ -148,7 +150,7 @@ I've added the following [library](https://caching-tools.github.io/next-shared-c
 
 For this we introduced the `cache-handler.mjs` file and some changes to the `next.config.mjs` file. 
 
-***Demo*** go to branch dynamic-cache-fixed and observe the behaviour:
+***Demo*** go to branch `dynamic-cache-fixed` and observe the behaviour:
 - navigating to `/dynamic-1` will render a new response
 - all refreshes or navigations within 10 seconds to `/dynamic-2` will render the same result
 - a new navigation or refresh after 10 seconds will render a new result
